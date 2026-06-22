@@ -909,6 +909,917 @@
   </div>
 </div>
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAUD SmartCare</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Nunito', sans-serif; background: #f0f4f8; }
+
+  :root {
+    --green: #2ECC71;
+    --green-dark: #27AE60;
+    --orange: #F39C12;
+    --blue: #3498DB;
+    --purple: #9B59B6;
+    --red: #E74C3C;
+    --sidebar-bg: #2ECC71;
+    --sidebar-active: #fff;
+    --text-dark: #2C3E50;
+    --text-gray: #7F8C8D;
+    --card-bg: #fff;
+    --border: #ECF0F1;
+  }
+
+  /* ===== NAV TABS ===== */
+  .nav-tabs {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 16px 20px; background: #1a1a2e;
+    position: sticky; top: 0; z-index: 1000;
+  }
+  .nav-tab {
+    padding: 6px 14px; border-radius: 20px; border: none;
+    background: rgba(255,255,255,0.1); color: #fff;
+    font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .nav-tab:hover { background: rgba(255,255,255,0.2); }
+  .nav-tab.active { background: var(--green); color: #fff; }
+
+  /* ===== SCREEN ===== */
+  .screen { display: none; min-height: calc(100vh - 60px); }
+  .screen.active { display: flex; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 200px; min-height: 100vh; background: var(--green);
+    padding: 20px 0; flex-shrink: 0;
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.3);
+    margin-bottom: 12px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px; background: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .logo-text { color: #fff; font-size: 13px; font-weight: 800; line-height: 1.2; }
+  .sidebar-menu { list-style: none; }
+  .sidebar-menu li a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; color: rgba(255,255,255,0.85);
+    text-decoration: none; font-size: 13px; font-weight: 600;
+    transition: all 0.2s; border-left: 3px solid transparent;
+  }
+  .sidebar-menu li a:hover { background: rgba(255,255,255,0.15); }
+  .sidebar-menu li.active a {
+    background: rgba(255,255,255,0.2); color: #fff;
+    border-left: 3px solid #fff;
+  }
+  .sidebar-menu li a .icon { font-size: 16px; }
+
+  /* ===== MAIN CONTENT ===== */
+  .main { flex: 1; padding: 24px; overflow-y: auto; }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 24px;
+  }
+  .topbar h1 { font-size: 22px; font-weight: 800; color: var(--text-dark); }
+  .user-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff; padding: 6px 14px; border-radius: 20px;
+    font-size: 13px; font-weight: 600; color: var(--text-dark);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--orange); display: flex; align-items: center;
+    justify-content: center; color: #fff; font-size: 12px; font-weight: 700;
+  }
+
+  /* ===== CARDS ===== */
+  .cards-row { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+  .stat-card {
+    flex: 1; min-width: 120px; background: #fff;
+    border-radius: 12px; padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .stat-card .label { font-size: 12px; color: var(--text-gray); font-weight: 600; margin-bottom: 4px; }
+  .stat-card .value { font-size: 28px; font-weight: 800; color: var(--text-dark); }
+  .stat-card .icon-wrap {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 8px;
+  }
+  .icon-green { background: #E8F8F0; }
+  .icon-blue { background: #EBF5FB; }
+  .icon-orange { background: #FEF9E7; }
+  .icon-purple { background: #F5EEF8; }
+
+  /* ===== TWO COL ===== */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card {
+    background: #fff; border-radius: 12px; padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .card h3 { font-size: 14px; font-weight: 800; color: var(--text-dark); margin-bottom: 14px; }
+
+  /* ===== TABLE ===== */
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: 12px; font-weight: 700; color: var(--text-gray); text-align: left; padding: 8px 10px; border-bottom: 2px solid var(--border); }
+  td { font-size: 13px; color: var(--text-dark); padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+
+  /* ===== BADGES ===== */
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+  }
+  .badge-green { background: #E8F8F0; color: var(--green-dark); }
+  .badge-orange { background: #FEF9E7; color: var(--orange); }
+  .badge-red { background: #FDEDEC; color: var(--red); }
+  .badge-blue { background: #EBF5FB; color: var(--blue); }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    padding: 6px 14px; border-radius: 8px; border: none;
+    font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:hover { background: var(--green-dark); }
+  .btn-blue { background: var(--blue); color: #fff; }
+  .btn-orange { background: var(--orange); color: #fff; }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-outline { background: #fff; border: 1.5px solid var(--border); color: var(--text-dark); }
+
+  /* ===== ACTIVITY LIST ===== */
+  .activity-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-dot {
+    width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0;
+  }
+  .activity-item .time { font-size: 11px; color: var(--text-gray); margin-top: 2px; }
+
+  /* ===== LOGIN SCREEN ===== */
+  #screen-login {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    align-items: center; justify-content: center;
+  }
+  .login-box {
+    background: #fff; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    display: flex; width: 820px; min-height: 480px;
+  }
+  .login-left {
+    flex: 1; background: linear-gradient(135deg, #2ECC71 0%, #1abc9c 100%);
+    padding: 40px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+  }
+  .login-left .logo-area { margin-bottom: 24px; }
+  .login-left .logo-area .big-logo {
+    width: 60px; height: 60px; background: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; margin: 0 auto 10px;
+  }
+  .login-left h2 { color: #fff; font-size: 22px; font-weight: 800; }
+  .login-left p { color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 4px; }
+  .login-illustration { font-size: 80px; margin-top: 20px; }
+  .login-right { flex: 1; padding: 48px 40px; }
+  .login-right h2 { font-size: 20px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px; }
+  .login-right p { font-size: 13px; color: var(--text-gray); margin-bottom: 28px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+  .form-group input {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: 10px; font-family: 'Nunito', sans-serif; font-size: 14px;
+    color: var(--text-dark); outline: none; transition: border 0.2s;
+  }
+  .form-group input:focus { border-color: var(--green); }
+  .btn-login {
+    width: 100%; padding: 12px; background: var(--orange); color: #fff;
+    border: none; border-radius: 10px; font-family: 'Nunito', sans-serif;
+    font-size: 15px; font-weight: 800; cursor: pointer; transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .btn-login:hover { background: #d68910; }
+  .forgot-link { display: block; text-align: center; margin-top: 12px; font-size: 13px; color: var(--orange); text-decoration: none; font-weight: 600; }
+
+  /* ===== WELCOME BANNER ===== */
+  .welcome-banner {
+    background: linear-gradient(135deg, #2ECC71 0%, #1abc9c 100%);
+    border-radius: 16px; padding: 24px; margin-bottom: 24px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .welcome-banner h2 { color: #fff; font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .welcome-banner p { color: rgba(255,255,255,0.85); font-size: 13px; }
+  .welcome-banner .emoji { font-size: 70px; }
+
+  /* ===== QUICK MENU ===== */
+  .quick-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+  .quick-item {
+    background: rgba(255,255,255,0.2); border-radius: 12px; padding: 14px;
+    text-align: center; cursor: pointer; transition: all 0.2s;
+  }
+  .quick-item:hover { background: rgba(255,255,255,0.3); }
+  .quick-item .q-icon { font-size: 24px; margin-bottom: 6px; }
+  .quick-item .q-label { color: #fff; font-size: 12px; font-weight: 700; }
+  .quick-item .q-sub { color: rgba(255,255,255,0.8); font-size: 11px; margin-top: 2px; }
+
+  /* ===== FORM ===== */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-field label { display: block; font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+  .form-field select, .form-field input[type="date"], .form-field textarea {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: 10px; font-family: 'Nunito', sans-serif; font-size: 13px;
+    color: var(--text-dark); outline: none;
+  }
+  .form-field textarea { min-height: 80px; resize: vertical; }
+  .aspek-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .aspek-card {
+    background: #F8FAFB; border-radius: 10px; padding: 14px;
+  }
+  .aspek-card h4 { font-size: 12px; font-weight: 800; color: var(--text-dark); margin-bottom: 10px; }
+  .radio-group { display: flex; flex-direction: column; gap: 6px; }
+  .radio-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-dark); cursor: pointer; }
+  .radio-item input[type="radio"] { accent-color: var(--green); }
+  .radio-item.checked { color: var(--green); font-weight: 700; }
+
+  /* ===== PROGRESS BARS ===== */
+  .progress-row { margin-bottom: 14px; }
+  .progress-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .progress-label span:first-child { font-size: 13px; font-weight: 600; color: var(--text-dark); display: flex; align-items: center; gap: 6px; }
+  .progress-label span:last-child { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+  .progress-bar { height: 10px; background: #ECF0F1; border-radius: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.6s; }
+
+  /* ===== SEARCH BAR ===== */
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: #F8FAFB; border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 8px 14px; margin-bottom: 16px;
+  }
+  .search-bar input { border: none; background: transparent; font-family: 'Nunito', sans-serif; font-size: 13px; color: var(--text-dark); outline: none; flex: 1; }
+
+  /* ===== CHILD PHOTO ===== */
+  .child-photo {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; background: #E8F8F0;
+  }
+
+  /* ===== PAGINATION ===== */
+  .pagination { display: flex; gap: 6px; margin-top: 16px; justify-content: center; }
+  .page-btn {
+    width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--border);
+    background: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; cursor: pointer; color: var(--text-dark);
+  }
+  .page-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+  /* ===== CHART CANVAS ===== */
+  .chart-wrap { position: relative; height: 180px; }
+
+  /* ===== ORANG TUA ===== */
+  .ot-sidebar { background: var(--green); }
+  .ot-sidebar .sidebar-menu li a { color: rgba(255,255,255,0.85); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .sidebar { width: 52px; }
+    .sidebar-logo .logo-text { display: none; }
+    .sidebar-menu li a span:not(.icon) { display: none; }
+    .login-box { flex-direction: column; width: 95vw; }
+    .two-col { grid-template-columns: 1fr; }
+    .aspek-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="showScreen('login')">1. Login</button>
+  <button class="nav-tab" onclick="showScreen('dashboard-admin')">2. Dashboard Admin</button>
+  <button class="nav-tab" onclick="showScreen('dashboard-guru')">3. Dashboard Guru</button>
+  <button class="nav-tab" onclick="showScreen('data-anak')">4. Data Anak</button>
+  <button class="nav-tab" onclick="showScreen('form-input')">5. Form Input</button>
+  <button class="nav-tab" onclick="showScreen('laporan-guru')">6. Laporan Guru</button>
+  <button class="nav-tab" onclick="showScreen('dashboard-ot')">7. Dashboard OT</button>
+  <button class="nav-tab" onclick="showScreen('perkembangan-anak')">8. Perkembangan Anak</button>
+  <button class="nav-tab" onclick="showScreen('grafik')">9. Grafik</button>
+</div>
+
+<!-- ==================== 1. LOGIN ==================== -->
+<div id="screen-login" class="screen active">
+  <div class="login-box">
+    <div class="login-left">
+      <div class="logo-area">
+        <div class="big-logo">🌱</div>
+        <h2>PAUD SmartCare</h2>
+        <p>Sistem Informasi Laporan<br>Perkembangan Anak</p>
+      </div>
+      <div class="login-illustration">👩‍👧‍👦</div>
+    </div>
+    <div class="login-right">
+      <h2>Selamat Datang</h2>
+      <p>Silakan masuk ke akun Anda</p>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" placeholder="Masukkan username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" placeholder="Masukkan password">
+      </div>
+      <button class="btn-login" onclick="showScreen('dashboard-admin')">Masuk</button>
+      <a href="#" class="forgot-link">Lupa password?</a>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 2. DASHBOARD ADMIN ==================== -->
+<div id="screen-dashboard-admin" class="screen">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🌱</div>
+      <div class="logo-text">PAUD<br>SmartCare</div>
+    </div>
+    <ul class="sidebar-menu">
+      <li class="active"><a href="#"><span class="icon">📊</span> Dashboard</a></li>
+      <li><a href="#"><span class="icon">👨‍🏫</span> Data Guru</a></li>
+      <li><a href="#"><span class="icon">👪</span> Data Orang Tua</a></li>
+      <li><a href="#"><span class="icon">👶</span> Data Anak</a></li>
+      <li><a href="#"><span class="icon">📋</span> Laporan</a></li>
+      <li><a href="#"><span class="icon">⚙️</span> Pengaturan</a></li>
+      <li><a href="#"><span class="icon">💾</span> Backup Data</a></li>
+      <li><a href="#"><span class="icon">🚪</span> Keluar</a></li>
+    </ul>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <h1>Dashboard Admin</h1>
+      <div class="user-badge"><div class="avatar">A</div> Admin <span style="font-size:11px;color:var(--text-gray)">Super Admin</span></div>
+    </div>
+    <div class="cards-row">
+      <div class="stat-card">
+        <div class="icon-wrap icon-green">👨‍🏫</div>
+        <div class="label">Jumlah Guru</div>
+        <div class="value" style="color:var(--green)">10</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-wrap icon-blue">👶</div>
+        <div class="label">Jumlah Anak</div>
+        <div class="value" style="color:var(--blue)">120</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-wrap icon-orange">👪</div>
+        <div class="label">Jumlah Orang Tua</div>
+        <div class="value" style="color:var(--orange)">115</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-wrap icon-purple">📋</div>
+        <div class="label">Laporan Bulan Ini</div>
+        <div class="value" style="color:var(--purple)">120</div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <h3>Laporan Bulan Ini</h3>
+        <div class="chart-wrap"><canvas id="chartAdmin"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Aktivitas Terbaru</h3>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:var(--green)"></div>
+          <div><div>Guru Rina mengisi perkembangan anak</div><div class="time">20 Jun 2026, 13.30</div></div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:var(--blue)"></div>
+          <div><div>Laporan bulan Mei dikirim</div><div class="time">20 Jun 2026, 09.15</div></div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:var(--orange)"></div>
+          <div><div>Data anak baru ditambahkan</div><div class="time">19 Jun 2026, 15.45</div></div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background:var(--purple)"></div>
+          <div><div>Backup data berhasil</div><div class="time">19 Jun 2026, 23.00</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 3. DASHBOARD GURU ==================== -->
+<div id="screen-dashboard-guru" class="screen">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🌱</div>
+      <div class="logo-text">PAUD<br>SmartCare</div>
+    </div>
+    <ul class="sidebar-menu">
+      <li class="active"><a href="#"><span class="icon">📊</span> Dashboard</a></li>
+      <li><a href="#"><span class="icon">👶</span> Data Anak</a></li>
+      <li><a href="#"><span class="icon">✏️</span> Input Perkembangan</a></li>
+      <li><a href="#"><span class="icon">📋</span> Laporan</a></li>
+      <li><a href="#"><span class="icon">📅</span> Riwayat</a></li>
+      <li><a href="#"><span class="icon">⚙️</span> Pengaturan</a></li>
+      <li><a href="#"><span class="icon">🚪</span> Keluar</a></li>
+    </ul>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <h1></h1>
+      <div class="user-badge"><div class="avatar" style="background:var(--orange)">B</div> Bu Rina <span style="font-size:11px;color:var(--text-gray)">Guru</span></div>
+    </div>
+    <div class="welcome-banner">
+      <div>
+        <h2>Selamat Datang, Bu Rina</h2>
+        <p>Kelola perkembangan anak dengan mudah</p>
+        <div class="quick-menu">
+          <div class="quick-item">
+            <div class="q-icon">✏️</div>
+            <div class="q-label">Input Perkembangan</div>
+            <div class="q-sub">Input perkembangan anak</div>
+          </div>
+          <div class="quick-item">
+            <div class="q-icon">📋</div>
+            <div class="q-label">Lihat Laporan</div>
+            <div class="q-sub">Lihat & kirim laporan</div>
+          </div>
+          <div class="quick-item">
+            <div class="q-icon">👶</div>
+            <div class="q-label">Data Anak</div>
+            <div class="q-sub">Kelola data anak</div>
+          </div>
+        </div>
+      </div>
+      <div class="emoji">👩‍🏫</div>
+    </div>
+    <div class="cards-row">
+      <div class="stat-card">
+        <div class="icon-wrap icon-green">👶</div>
+        <div class="label">Total Anak</div>
+        <div class="value" style="color:var(--green)">20</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-wrap icon-blue">✅</div>
+        <div class="label">Sudah Diinput</div>
+        <div class="value" style="color:var(--blue)">15</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-wrap icon-red; background:#FDEDEC">⏳</div>
+        <div class="label">Belum Diinput</div>
+        <div class="value" style="color:var(--red)">5</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 4. DATA ANAK ==================== -->
+<div id="screen-data-anak" class="screen">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🌱</div>
+      <div class="logo-text">PAUD<br>SmartCare</div>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="#"><span class="icon">📊</span> Dashboard</a></li>
+      <li class="active"><a href="#"><span class="icon">👶</span> Data Anak</a></li>
+      <li><a href="#"><span class="icon">✏️</span> Input Perkembangan</a></li>
+      <li><a href="#"><span class="icon">📋</span> Laporan</a></li>
+      <li><a href="#"><span class="icon">📅</span> Riwayat</a></li>
+      <li><a href="#"><span class="icon">⚙️</span> Pengaturan</a></li>
+      <li><a href="#"><span class="icon">🚪</span> Keluar</a></li>
+    </ul>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <h1>Data Anak</h1>
+      <button class="btn btn-green">+ Tambah Anak</button>
+    </div>
+    <div class="card">
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" placeholder="Cari anak...">
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>No</th><th>Foto</th><th>Nama Anak</th><th>Usia</th><th>Orang Tua</th><th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><div class="child-photo">👦</div></td>
+            <td><b>Andi Saputra</b></td>
+            <td>5 Tahun</td>
+            <td>Budi Santoso</td>
+            <td>
+              <button class="btn btn-blue" style="font-size:11px;padding:4px 10px">Detail</button>
+              <button class="btn btn-orange" style="font-size:11px;padding:4px 10px">Edit</button>
+              <button class="btn btn-outline" style="font-size:11px;padding:4px 10px">⋮</button>
+            </td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><div class="child-photo">👧</div></td>
+            <td><b>Rina Aulia</b></td>
+            <td>4 Tahun</td>
+            <td>Santi Wulandari</td>
+            <td>
+              <button class="btn btn-blue" style="font-size:11px;padding:4px 10px">Detail</button>
+              <button class="btn btn-orange" style="font-size:11px;padding:4px 10px">Edit</button>
+              <button class="btn btn-outline" style="font-size:11px;padding:4px 10px">⋮</button>
+            </td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><div class="child-photo">👦</div></td>
+            <td><b>Dika Pratama</b></td>
+            <td>5 Tahun</td>
+            <td>Dedi Kurniawan</td>
+            <td>
+              <button class="btn btn-blue" style="font-size:11px;padding:4px 10px">Detail</button>
+              <button class="btn btn-orange" style="font-size:11px;padding:4px 10px">Edit</button>
+              <button class="btn btn-outline" style="font-size:11px;padding:4px 10px">⋮</button>
+            </td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><div class="child-photo">👧</div></td>
+            <td><b>Siti Aisyah</b></td>
+            <td>4 Tahun</td>
+            <td>Nurhayati</td>
+            <td>
+              <button class="btn btn-blue" style="font-size:11px;padding:4px 10px">Detail</button>
+              <button class="btn btn-orange" style="font-size:11px;padding:4px 10px">Edit</button>
+              <button class="btn btn-outline" style="font-size:11px;padding:4px 10px">⋮</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <div class="page-btn">‹</div>
+        <div class="page-btn active">1</div>
+        <div class="page-btn">2</div>
+        <div class="page-btn">3</div>
+        <div class="page-btn">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 5. FORM INPUT ==================== -->
+<div id="screen-form-input" class="screen">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🌱</div>
+      <div class="logo-text">PAUD<br>SmartCare</div>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="#"><span class="icon">📊</span> Dashboard</a></li>
+      <li><a href="#"><span class="icon">👶</span> Data Anak</a></li>
+      <li class="active"><a href="#"><span class="icon">✏️</span> Input Perkembangan</a></li>
+      <li><a href="#"><span class="icon">📅</span> Riwayat</a></li>
+      <li><a href="#"><span class="icon">⚙️</span> Pengaturan</a></li>
+      <li><a href="#"><span class="icon">🚪</span> Keluar</a></li>
+    </ul>
+  </div>
+  <div class="main">
+    <div class="topbar"><h1>Input Perkembangan Anak</h1></div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-field">
+          <label>Nama Anak</label>
+          <select><option>Andi Saputra</option><option>Rina Aulia</option><option>Dika Pratama</option></select>
+        </div>
+        <div class="form-field">
+          <label>Tanggal</label>
+          <input type="date" value="2026-06-20">
+        </div>
+      </div>
+
+      <div class="aspek-grid">
+        <div class="aspek-card">
+          <h4>Motorik</h4>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="motorik" value="BB"> BB</label>
+            <label class="radio-item"><input type="radio" name="motorik" value="MB"> MB</label>
+            <label class="radio-item checked"><input type="radio" name="motorik" value="BSH" checked> ✔ BSH</label>
+            <label class="radio-item"><input type="radio" name="motorik" value="BSB"> BSB</label>
+          </div>
+        </div>
+        <div class="aspek-card">
+          <h4>Kognitif</h4>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="kognitif" value="BB"> BB</label>
+            <label class="radio-item"><input type="radio" name="kognitif" value="MB"> MB</label>
+            <label class="radio-item checked"><input type="radio" name="kognitif" value="BSH" checked> ✔ BSH</label>
+            <label class="radio-item"><input type="radio" name="kognitif" value="BSB"> BSB</label>
+          </div>
+        </div>
+        <div class="aspek-card">
+          <h4>Sosial</h4>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="sosial" value="BB"> BB</label>
+            <label class="radio-item"><input type="radio" name="sosial" value="MB"> MB</label>
+            <label class="radio-item checked"><input type="radio" name="sosial" value="BSH" checked> ✔ BSH</label>
+            <label class="radio-item"><input type="radio" name="sosial" value="BSB"> BSB</label>
+          </div>
+        </div>
+        <div class="aspek-card">
+          <h4>Emosional</h4>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="emosional" value="BB"> BB</label>
+            <label class="radio-item"><input type="radio" name="emosional" value="MB"> MB</label>
+            <label class="radio-item checked"><input type="radio" name="emosional" value="BSH" checked> ✔ BSH</label>
+            <label class="radio-item"><input type="radio" name="emosional" value="BSB"> BSB</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field" style="margin-bottom:20px">
+        <label>Catatan Guru</label>
+        <textarea placeholder="Tulis catatan perkembangan anak..."></textarea>
+      </div>
+      <div style="text-align:right">
+        <button class="btn btn-green" style="padding:10px 28px;font-size:14px">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 6. LAPORAN GURU ==================== -->
+<div id="screen-laporan-guru" class="screen">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🌱</div>
+      <div class="logo-text">PAUD<br>SmartCare</div>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="#"><span class="icon">📊</span> Dashboard</a></li>
+      <li><a href="#"><span class="icon">👶</span> Data Anak</a></li>
+      <li><a href="#"><span class="icon">✏️</span> Input Perkembangan</a></li>
+      <li class="active"><a href="#"><span class="icon">📋</span> Laporan</a></li>
+      <li><a href="#"><span class="icon">📅</span> Riwayat</a></li>
+      <li><a href="#"><span class="icon">⚙️</span> Pengaturan</a></li>
+      <li><a href="#"><span class="icon">🚪</span> Keluar</a></li>
+    </ul>
+  </div>
+  <div class="main">
+    <div class="topbar"><h1>Laporan Perkembangan</h1></div>
+    <div class="card">
+      <div class="cards-row" style="margin-bottom:16px">
+        <div class="form-field" style="flex:1">
+          <label>Periode</label>
+          <select><option>Juni 2026</option><option>Mei 2026</option></select>
+        </div>
+        <div class="form-field" style="flex:2">
+          <label>Anak</label>
+          <select><option>Semua Anak</option><option>Andi Saputra</option></select>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>No</th><th>Nama Anak</th><th>Periode</th><th>Status</th><th>Aksi</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td><td><b>Andi Saputra</b></td><td>Juni 2026</td>
+            <td><span class="badge badge-green">Selesai</span></td>
+            <td>
+              <button class="btn btn-blue" style="font-size:11px;padding:4px 10px">Lihat</button>
+              <button class="btn btn-green" style="font-size:11px;padding:4px 10px">Cetak</button>
+              <button class="btn btn-orange" style="font-size:11px;padding:4px 10px">Kirim</button>
+            </td>
+          </tr>
+          <tr>
+            <td>2</td><td><b>Rina Aulia</b></td><td>Juni 2026</td>
+            <td><span class="badge badge-green">Selesai</span></td>
+            <td>
+              <button class="btn btn-blue" style="font-size:11px;padding:4px 10px">Lihat</button>
+              <button class="btn btn-green" style="font-size:11px;padding:4px 10px">Cetak</button>
+              <button class="btn btn-orange" style="font-size:11px;padding:4px 10px">Kirim</button>
+            </td>
+          </tr>
+          <tr>
+            <td>3</td><td><b>Dika Pratama</b></td><td>Juni 2026</td>
+            <td><span class="badge badge-green">Selesai</span></td>
+            <td>
+              <button class="btn btn-blue" style="font-size:11px;padding:4px 10px">Lihat</button>
+              <button class="btn btn-green" style="font-size:11px;padding:4px 10px">Cetak</button>
+              <button class="btn btn-orange" style="font-size:11px;padding:4px 10px">Kirim</button>
+            </td>
+          </tr>
+          <tr>
+            <td>4</td><td><b>Siti Aisyah</b></td><td>Juni 2026</td>
+            <td><span class="badge badge-orange">Proses</span></td>
+            <td>
+              <button class="btn btn-blue" style="font-size:11px;padding:4px 10px">Lihat</button>
+              <button class="btn btn-green" style="font-size:11px;padding:4px 10px">Cetak</button>
+              <button class="btn btn-orange" style="font-size:11px;padding:4px 10px">Kirim</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 7. DASHBOARD ORANG TUA ==================== -->
+<div id="screen-dashboard-ot" class="screen">
+  <div class="sidebar ot-sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🌱</div>
+      <div class="logo-text">PAUD<br>SmartCare</div>
+    </div>
+    <ul class="sidebar-menu">
+      <li class="active"><a href="#"><span class="icon">🏠</span> Beranda</a></li>
+      <li><a href="#"><span class="icon">👶</span> Anak Saya</a></li>
+      <li><a href="#"><span class="icon">📋</span> Laporan</a></li>
+      <li><a href="#"><span class="icon">📈</span> Grafik Perkembangan</a></li>
+      <li><a href="#"><span class="icon">⚙️</span> Pengaturan</a></li>
+      <li><a href="#"><span class="icon">🚪</span> Keluar</a></li>
+    </ul>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <h1></h1>
+      <div class="user-badge"><div class="avatar" style="background:var(--blue)">B</div> Bapak Budi <span style="font-size:11px;color:var(--text-gray)">Orang Tua</span></div>
+    </div>
+    <div class="welcome-banner">
+      <div>
+        <h2>Selamat Datang, Bapak Budi</h2>
+        <p>Pantau perkembangan buah hati Anda</p>
+      </div>
+      <div class="emoji">👨‍👧</div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <h3>Anak Saya</h3>
+        <div style="display:flex;align-items:center;gap:14px;padding:10px 0">
+          <div style="font-size:48px">👦</div>
+          <div>
+            <div style="font-weight:800;font-size:15px">Andi Saputra</div>
+            <div style="font-size:13px;color:var(--text-gray)">5 Tahun</div>
+            <button class="btn btn-green" style="margin-top:8px">Lihat Profil</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Laporan Terbaru</h3>
+        <div style="padding:10px 0">
+          <div style="font-weight:700;font-size:14px">Juni 2026</div>
+          <div style="font-size:13px;color:var(--text-gray);margin:4px 0">Dikirim oleh Bu Rina</div>
+          <div style="font-size:12px;color:var(--text-gray)">30 Juni 2026</div>
+          <button class="btn btn-blue" style="margin-top:10px">Lihat Laporan</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>Menu Cepat</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px">
+        <div style="background:#E8F8F0;border-radius:12px;padding:16px;text-align:center;cursor:pointer">
+          <div style="font-size:24px">📊</div>
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-top:6px">Lihat Perkembangan</div>
+        </div>
+        <div style="background:#EBF5FB;border-radius:12px;padding:16px;text-align:center;cursor:pointer">
+          <div style="font-size:24px">📈</div>
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-top:6px">Lihat Grafik</div>
+        </div>
+        <div style="background:#FEF9E7;border-radius:12px;padding:16px;text-align:center;cursor:pointer">
+          <div style="font-size:24px">⬇️</div>
+          <div style="font-size:12px;font-weight:700;color:var(--orange);margin-top:6px">Download PDF</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 8. PERKEMBANGAN ANAK ==================== -->
+<div id="screen-perkembangan-anak" class="screen">
+  <div class="sidebar ot-sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🌱</div>
+      <div class="logo-text">PAUD<br>SmartCare</div>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="#"><span class="icon">🏠</span> Beranda</a></li>
+      <li><a href="#"><span class="icon">👶</span> Anak Saya</a></li>
+      <li class="active"><a href="#"><span class="icon">📋</span> Laporan</a></li>
+      <li><a href="#"><span class="icon">📅</span> Riwayat</a></li>
+      <li><a href="#"><span class="icon">⚙️</span> Pengaturan</a></li>
+      <li><a href="#"><span class="icon">🚪</span> Keluar</a></li>
+    </ul>
+  </div>
+  <div class="main">
+    <div style="font-size:13px;color:var(--text-gray);margin-bottom:8px">Laporan Perkembangan / Juni 2026</div>
+    <div class="topbar">
+      <div>
+        <h1>Andi Saputra</h1>
+        <div style="font-size:13px;color:var(--text-gray)">5 Tahun</div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <h3>Aspek Perkembangan</h3>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>💪 Motorik</span><span>80%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:80%;background:var(--green)"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>🧠 Kognitif</span><span>75%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--blue)"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>🤝 Sosial</span><span>85%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--orange)"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>💜 Emosional</span><span>70%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--purple)"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Catatan Guru</h3>
+        <p style="font-size:13px;color:var(--text-dark);line-height:1.7">
+          Andi sudah mampu mengikuti kegiatan belajar dengan baik. Ia mulai mandiri dalam menggunakan alat makan dan berinteraksi dengan teman secara positif.
+        </p>
+        <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+          <div style="font-size:12px;color:var(--text-gray)">Dikirim oleh</div>
+          <div style="font-size:13px;font-weight:700">Bu Rina</div>
+          <div style="font-size:12px;color:var(--text-gray);margin-top:4px">Tanggal Kirim: 20 Jun 2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 9. GRAFIK PERKEMBANGAN ==================== -->
+<div id="screen-grafik" class="screen">
+  <div class="sidebar ot-sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🌱</div>
+      <div class="logo-text">PAUD<br>SmartCare</div>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="#"><span class="icon">🏠</span> Beranda</a></li>
+      <li><a href="#"><span class="icon">👶</span> Anak Saya</a></li>
+      <li><a href="#"><span class="icon">📋</span> Laporan</a></li>
+      <li class="active"><a href="#"><span class="icon">📈</span> Grafik Perkembangan</a></li>
+      <li><a href="#"><span class="icon">⚙️</span> Pengaturan</a></li>
+      <li><a href="#"><span class="icon">🚪</span> Keluar</a></li>
+    </ul>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <h1>Grafik Perkembangan</h1>
+      <select style="padding:6px 12px;border-radius:8px;border:1.5px solid var(--border);font-family:'Nunito',sans-serif;font-size:13px;font-weight:600">
+        <option>3 Bulan Terakhir</option>
+        <option>6 Bulan Terakhir</option>
+      </select>
+    </div>
+    <div class="card">
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <button class="btn btn-green">Motorik</button>
+        <button class="btn btn-blue">Kognitif</button>
+        <button class="btn btn-orange">Sosial</button>
+        <button class="btn" style="background:var(--purple);color:#fff">Emosional</button>
+      </div>
+      <div class="chart-wrap" style="height:260px"><canvas id="chartGrafik"></canvas></div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:16px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:12px;height:12px;background:#ECF0F1;border-radius:2px"></div>BB – Belum Berkembang</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:12px;height:12px;background:#AED6F1;border-radius:2px"></div>MB – Mulai Berkembang</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:12px;height:12px;background:var(--green);border-radius:2px"></div>BSH – Berkembang Sesuai Harapan</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><div style="width:12px;height:12px;background:var(--orange);border-radius:2px"></div>BSB – Berkembang Sangat Baik</div>
+      </div>
+      <p style="font-size:12px;color:var(--text-gray);margin-top:12px">Grafik menunjukkan perkembangan anak dalam 3 bulan terakhir.</p>
+    </div>
+  </div>
+</div>
+
 <script>
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -976,5 +1887,8 @@ function initGrafikChart() {
   });
 }
 </script>
+</body>
+</html>
+
 </body>
 </html>
