@@ -1,0 +1,65 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+<style>
+text{font-family:Arial,sans-serif}
+</style>
+
+<rect width="1440" height="900" fill="#F7F8FA"/>
+
+<!-- Sidebar -->
+<rect x="0" y="0" width="260" height="900" fill="#FFFFFF" stroke="#EAEAEA"/>
+<text x="55" y="80" font-size="24" font-weight="700" fill="#F58220">PAUD</text>
+<text x="55" y="115" font-size="20" font-weight="700" fill="#18A34A">SmartCare</text>
+
+<rect x="20" y="150" width="220" height="60" rx="12" fill="#09B43A"/>
+<text x="80" y="188" font-size="18" fill="white" font-weight="700">Dashboard</text>
+
+<text x="45" y="280" font-size="18">Data Anak</text>
+<text x="45" y="360" font-size="18">Input Perkembangan</text>
+<text x="45" y="440" font-size="18">Laporan</text>
+<text x="45" y="520" font-size="18">Riwayat</text>
+<text x="45" y="600" font-size="18">Pengaturan</text>
+<text x="45" y="680" font-size="18">Keluar</text>
+
+<!-- Header -->
+<text x="330" y="160" font-size="34" font-weight="700">Selamat Datang,</text>
+<text x="330" y="225" font-size="54" font-weight="700">Bu Rina</text>
+<text x="330" y="280" font-size="18" fill="#555">Kelola perkembangan anak dengan mudah</text>
+
+<!-- Avatar -->
+<circle cx="1360" cy="60" r="30" fill="#FFD2B3"/>
+<text x="1250" y="45" font-size="20" font-weight="700">Bu Rina</text>
+<text x="1285" y="75" font-size="16" fill="#666">Guru</text>
+
+<!-- Illustration Area -->
+<rect x="900" y="90" width="420" height="260" rx="20" fill="#FFF7EF"/>
+<circle cx="1110" cy="170" r="60" fill="#FFD2B3"/>
+<rect x="1050" y="220" width="120" height="90" rx="20" fill="#F58220"/>
+
+<!-- Cards -->
+<rect x="330" y="380" width="320" height="170" rx="18" fill="#EFFAF1" stroke="#E6E6E6"/>
+<text x="380" y="450" font-size="22" font-weight="700">Total Anak</text>
+<text x="430" y="515" font-size="52" font-weight="700">20</text>
+
+<rect x="680" y="380" width="320" height="170" rx="18" fill="#F1F8FF" stroke="#E6E6E6"/>
+<text x="730" y="450" font-size="22" font-weight="700">Sudah Diinput</text>
+<text x="780" y="515" font-size="52" font-weight="700">15</text>
+
+<rect x="1030" y="380" width="320" height="170" rx="18" fill="#FFF8F0" stroke="#E6E6E6"/>
+<text x="1080" y="450" font-size="22" font-weight="700">Belum Diinput</text>
+<text x="1130" y="515" font-size="52" font-weight="700">5</text>
+
+<!-- Menu Cepat -->
+<rect x="320" y="590" width="1040" height="250" rx="18" fill="white" stroke="#EAEAEA"/>
+<text x="360" y="640" font-size="24" font-weight="700">Menu Cepat</text>
+
+<rect x="360" y="690" width="280" height="120" rx="16" fill="#EFFAF1"/>
+<text x="430" y="740" font-size="18" font-weight="700">Input</text>
+<text x="430" y="770" font-size="18" font-weight="700">Perkembangan</text>
+
+<rect x="690" y="690" width="280" height="120" rx="16" fill="#F1F8FF"/>
+<text x="760" y="750" font-size="18" font-weight="700">Lihat Laporan</text>
+
+<rect x="1020" y="690" width="280" height="120" rx="16" fill="#FFF8F0"/>
+<text x="1110" y="750" font-size="18" font-weight="700">Data Anak</text>
+</svg>
